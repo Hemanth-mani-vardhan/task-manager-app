@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Task Manager</title>
+
+  <!-- ----------  CSS  ---------- -->
+  <style>
+    /* ----------  THEME VARIABLES  ---------- */
+    :root {
+      --bg: #f9f9f9;
+      --text: #222;
+      --card: #ffffff;
+      --card-border: #e1e1e1;
+      --accent: #0078d7;
+      --accent-hover: #0060aa;
+    }
+    .dark {
+      --bg: #1e1e1e;
+      --text: #e6e6e6;
+      --card: #252526;
+      --card-border: #2d2d2d;
+      --accent: #0a84ff;
+      --accent-hover: #006cd1;
+    }
+
+    /* ----------  GLOBAL  ---------- */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 1.8rem 2rem;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    /* ----------  HEADER  ---------- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    /* ----------  DARK MODE TOGGLE  ---------- */
+    .toggle-wrapper {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.9rem;
+    }
+    .toggle-wrapper input {
+      appearance: none;
+      width: 36px;
+      height: 20px;
+      background: var(--card-border);
+      border-radius: 9999px;
+      position: relative;
+      outline: none;
+      transition: background .25s;
+    }
+    .toggle-wrapper input::after {
+      content: "";
+      position: absolute;
+      height: 16px;
+      width: 16px;
+      top: 2px;
+      left: 2px;
+      border-radius: 50%;
+      background: var(--card);
+      transition: transform .25s;
+    }
+    .toggle-wrapper input:checked {
+      background: var(--accent);
+    }
+    .toggle-wrapper input:checked::after {
+      transform: translateX(16px);
+    }
+
+    /* ----------  INPUT AREA  ---------- */
+    .input-bar {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: .75rem;
+      padding: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin-bottom: 2rem;
+    }
+    .input-bar input[type="text"],
+    .input-bar input[type="date"],
+    .input-bar input[type="time"] {
+      padding: .55rem .7rem;
+      border: 1px solid var(--card-border);
+      border-radius: .4rem;
+      background: var(--bg);
+      color: var(--text);
+      flex: 1 1 180px;
+    }
+    .input-bar button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: .55rem 1.2rem;
+      border-radius: .4rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .input-bar button:hover {
+      background: var(--accent-hover);
+    }
+
+    /* ----------  TASK SECTIONS  ---------- */
+    h2 {
+      margin: 1.4rem 0 .6rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    #current-tasks, #completed-tasks {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+
+    /* ----------  TASK CARD  ---------- */
+    .task {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: .6rem;
+      padding: .65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .task label {
+      font-size: .95rem;
+    }
+    .task.completed label {
+      text-decoration: line-through;
+      color: gray;
+    }
+    .task-time {
+      font-size: .75rem;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ----------  HEADER  ---------- -->
+  <header>
+    <h1>Task Manager</h1>
+    <label class="toggle-wrapper">
+      <input type="checkbox" id="theme-toggle">
+      Dark&nbsp;Mode
+    </label>
+  </header>
+
+  <!-- ----------  INPUT BAR  ---------- -->
+  <div class="input-bar">
+    <input type="text" id="task-input" placeholder="Enter new task…" />
+    <input type="date" id="due-date" />
+    <input type="time" id="due-time" />
+    <button id="add-btn">Add Task</button>
+  </div>
+
+  <!-- ----------  TASK SECTIONS  ---------- -->
+  <h2>Current Tasks</h2>
+  <div id="current-tasks"></div>
+
+  <h2>Completed Tasks</h2>
+  <div id="completed-tasks"></div>
+
+  <!-- ----------  SCRIPT  ---------- -->
+  <script>
+    const addBtn   = document.getElementById('add-btn');
+    const taskIn   = document.getElementById('task-input');
+    const dateIn   = document.getElementById('due-date');
+    const timeIn   = document.getElementById('due-time');
+    const current  = document.getElementById('current-tasks');
+    const done     = document.getElementById('completed-tasks');
+    const toggle   = document.getElementById('theme-toggle');
+    const body     = document.body;
+
+    /* ----------  CREATE TASK ELEMENT ---------- */
+    function createTask(text, date, time, completed) {
+      const task = document.createElement('div');
+      task.className = 'task' + (completed ? ' completed' : '');
+
+      const left = document.createElement('div');
+      left.className = 'task-left';
+
+      const cb   = document.createElement('input');
+      cb.type    = 'checkbox';
+      cb.checked = completed;
+
+      cb.onchange = () => {
+        task.classList.toggle('completed', cb.checked);
+        (cb.checked ? done : current).appendChild(task);
+      };
+
+      const label = document.createElement('label');
+      label.textContent = text;
+
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'task-time';
+      if (date || time) timeSpan.textContent = `Due: ${date} ${time}`;
+
+      left.append(cb, label);
+      task.append(left, timeSpan);
+      return task;
+    }
+
+    /* ----------  ADD TASK ---------- */
+    function addTask() {
+      const text = taskIn.value.trim();
+      if (!text) return;
+
+      const task = createTask(text, dateIn.value, timeIn.value, false);
+      current.appendChild(task);
+
+      taskIn.value = '';
+      dateIn.value = '';
+      timeIn.value = '';
+    }
+
+    addBtn.addEventListener('click', addTask);
+    taskIn.addEventListener('keydown', e => e.key === 'Enter' && addTask());
+
+    /* ----------  DARK MODE TOGGLE ---------- */
+    toggle.addEventListener('change', () => {
+      body.classList.toggle('dark', toggle.checked);
+      // persist choice
+      localStorage.setItem('darkMode', toggle.checked);
+    });
+
+    // load saved theme preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      toggle.checked = true;
+      body.classList.add('dark');
+    }
+  </script>
+</body>
+</html>
