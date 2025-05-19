@@ -15,18 +15,18 @@ A simple and intuitive task management application built with JavaScript.
    git clone https://github.com/Hemanth-mani-vardhan/task-manager-app.git
    ```
 
-##Navigate into the project directory:
+## Navigate into the project directory:
 ```bash
 cd task-manager-app
 ```
-##Install dependencies:
+## Install dependencies:
 ```bash
 npm install
 ```
-##Run the application:
+## Run the application:
 ```bash
     npm start
 ```
-##Contributing
+## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request.
